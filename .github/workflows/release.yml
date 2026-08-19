@@ -1,0 +1,83 @@
+name: release
+
+# Tag `<ontology>-v<version>` (e.g. consistency-core-v1.0.1) to package the
+# entry, upload the tarball to a GitHub Release, and update index.json with
+# the new version's URL + sha256 digest.
+
+on:
+  push:
+    tags:
+      - "*-v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Parse tag
+        id: tag
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          NAME="${TAG%-v*}"
+          VERSION="${TAG##*-v}"
+          test -d "ontologies/${NAME}" || { echo "unknown ontology: ${NAME}"; exit 1; }
+          echo "name=${NAME}" >> "$GITHUB_OUTPUT"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+      - name: Check manifest version matches tag
+        run: |
+          python - <<EOF
+          import tomllib, sys
+          m = tomllib.load(open("ontologies/${{ steps.tag.outputs.name }}/ontology.toml", "rb"))
+          v = m["ontology"]["version"]
+          sys.exit(0 if v == "${{ steps.tag.outputs.version }}" else print(f"manifest version {v} != tag") or 1)
+          EOF
+      - name: Package
+        id: pkg
+        run: |
+          NAME="${{ steps.tag.outputs.name }}"
+          VERSION="${{ steps.tag.outputs.version }}"
+          TARBALL="${NAME}-${VERSION}.tar.gz"
+          tar --sort=name --owner=0 --group=0 --numeric-owner \
+              -czf "${TARBALL}" -C ontologies "${NAME}"
+          echo "digest=sha256:$(sha256sum "${TARBALL}" | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+          echo "tarball=${TARBALL}" >> "$GITHUB_OUTPUT"
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" "${{ steps.pkg.outputs.tarball }}" \
+            --title "${{ steps.tag.outputs.name }} ${{ steps.tag.outputs.version }}" \
+            --notes "digest: ${{ steps.pkg.outputs.digest }}"
+      - name: Update index.json
+        run: |
+          python - <<EOF
+          import json, tomllib, datetime
+          name = "${{ steps.tag.outputs.name }}"
+          version = "${{ steps.tag.outputs.version }}"
+          m = tomllib.load(open(f"ontologies/{name}/ontology.toml", "rb"))["ontology"]
+          idx = json.load(open("index.json"))
+          entries = idx.setdefault("entries", {}).setdefault(name, [])
+          entries[:] = [e for e in entries if e["version"] != version]
+          entries.insert(0, {
+              "version": version,
+              "title": m.get("title", name),
+              "engine": m.get("engine", ""),
+              "urls": [f"https://github.com/${{ github.repository }}/releases/download/${GITHUB_REF_NAME}/{name}-{version}.tar.gz"],
+              "digest": "${{ steps.pkg.outputs.digest }}",
+              "created": datetime.date.today().isoformat(),
+          })
+          json.dump(idx, open("index.json", "w"), indent=2)
+          EOF
+      - name: Commit index
+        run: |
+          git config user.name "inputlayer-registry-bot"
+          git config user.email "registry@inputlayer.ai"
+          git add index.json
+          git commit -m "index: ${{ steps.tag.outputs.name }} ${{ steps.tag.outputs.version }}"
+          git push origin main

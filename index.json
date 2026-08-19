@@ -1,0 +1,18 @@
+{
+  "apiVersion": 1,
+  "generated": "2026-08-19",
+  "entries": {
+    "consistency-core": [
+      {
+        "version": "1.0.0",
+        "title": "Verified Completions",
+        "engine": ">=0.1.0",
+        "urls": [
+          "https://github.com/inputlayer/ontology-registry/releases/download/consistency-core-v1.0.0/consistency-core-1.0.0.tar.gz"
+        ],
+        "digest": "sha256:bd55d91a2dc523be213b12e601c1b315ca637658641966311310e93b1f338d97",
+        "created": "2026-08-19"
+      }
+    ]
+  }
+}

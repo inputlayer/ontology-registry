@@ -1,0 +1,95 @@
+# consistency-core — Verified Completions
+#
+# Layers 1–2 of this entry are files (rules, extraction contract).
+# This manifest is layers 3–4 as data: how extraction output maps to IQL
+# facts, what the validator enforces, and what the demo/report surface
+# watches. Consumed by the `il` CLI and, later, the gateway.
+
+[ontology]
+name = "consistency-core"
+version = "1.0.0"
+title = "Verified Completions"
+description = "Logical-consistency verification for AI conversations: contradictions, timeline cycles, identity mix-ups, and policy violations — every finding backed by quoted spans and a proof tree."
+engine = ">=0.1.0"
+rules = ["rules/consistency.iql"]
+
+[extraction]
+schema = "extraction/schema.json"
+prompt = "extraction/prompt.md"
+model = "claude-haiku-4-5"
+# Retractions in extraction output name the id of a previously inserted
+# object; the pipeline replays that id's exact inserted tuples, negated.
+retract_by = "target"
+
+[validate]
+# A claim whose quote is not a verbatim substring of the message it cites
+# is dropped, never inserted. Extraction noise can only produce a missed
+# finding, never a false one.
+quote = { field = "surface", within = "msg" }
+# The extractor may EXTEND these seed lists (data), never redeclare a
+# member the pack seeded (poc_verify.py Validator rule, generalized).
+protected_seeds = [
+  "functional", "inverse_functional", "disjoint_base", "acyclic",
+  "asymmetric", "irreflexive", "pair_order", "cardinality_attr",
+  "attr_max", "attr_min", "attr_domain",
+]
+
+# ── chat→KG mapping ────────────────────────────────────────────────────
+# {field} substitutes extraction-output fields; string substitutions are
+# escaped automatically. `when` rows fire only if the named built-in
+# transform yields a value (bound to {num} here).
+
+[[map.claims]]
+insert = [
+  '+claim[("{id}", "{entity}", "{attribute}", "{value}")]',
+  '+claim_modality[("{id}", "{modality}")]',
+  '+claim_source[("{id}", {msg}, "{surface}")]',
+  '+claim_origin[("{id}", "{origin}")]',
+]
+[[map.claims.extra]]
+when = "numeric_mirror(attribute, value)"
+insert = ['+claim_num[("{id}", "{entity}", "{attribute}", {num})]']
+
+[[map.before_claims]]
+insert = [
+  '+before_claim[("{id}", "{event_a}", "{event_b}")]',
+  '+claim_source[("{id}", {msg}, "{surface}")]',
+]
+
+[[map.constraints]]
+when = 'type in ["max_value", "min_value"]'
+insert = [
+  '+constraint_num[("{id}", "{type}", "{attr}", {value})]',
+  '+constraint_source[("{id}", {msg}, "{surface}")]',
+]
+[[map.constraints]]
+insert = [
+  '+constraint[("{id}", "{type}", "{attr}", "{value}")]',
+  '+constraint_source[("{id}", {msg}, "{surface}")]',
+]
+
+[[map.ontology]]
+# Seed-list extensions: subject to protected_seeds above.
+insert_by_key = { functional = '+functional[("{item}",)]', acyclic = '+acyclic[("{item}",)]', asymmetric = '+asymmetric[("{item}",)]', irreflexive = '+irreflexive[("{item}",)]', pair_order = '+pair_order[("{start_attr}", "{end_attr}")]' }
+
+# ── report surface: what the demo TUI and `il verify` watch ────────────
+
+[[report.watch]]
+view = "finding_src(K, Sev, C1, M1, S1, C2, M2, S2)"
+title = "{K} · {Sev}"
+spans = [["M1", "S1"], ["M2", "S2"]]
+proof = 'conflict("{K}", "{C1}", "{C2}")'
+symmetric_dedup = true
+
+[[report.watch]]
+view = "violation_src(K, C, M, S, Kc)"
+title = "violation · {K}"
+spans = [["M", "S"]]
+proof = 'violation("{K}", "{C}", "{Kc}")'
+
+[demo]
+script = "demo/conversation.json"
+
+[fixtures]
+golden = "fixtures/golden.iql"
+snapshot = "fixtures/golden.iql.out"

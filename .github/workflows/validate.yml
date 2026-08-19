@@ -1,0 +1,58 @@
+name: validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Lint all IQL files
+        run: |
+          set -e
+          for f in $(find ontologies -name '*.iql'); do
+            echo "lint: $f"
+            python tools/lint_iql.py "$f"
+          done
+      - name: Validate manifests and demo scripts parse
+        run: |
+          python - <<'EOF'
+          import json, pathlib, sys
+          import tomllib
+          ok = True
+          for entry in pathlib.Path("ontologies").iterdir():
+              manifest = entry / "ontology.toml"
+              if not manifest.is_file():
+                  print(f"missing manifest: {manifest}"); ok = False; continue
+              m = tomllib.loads(manifest.read_text())
+              name = m["ontology"]["name"]
+              if name != entry.name:
+                  print(f"{manifest}: name '{name}' != directory '{entry.name}'"); ok = False
+              for key in ("version", "title", "rules"):
+                  if key not in m["ontology"]:
+                      print(f"{manifest}: missing ontology.{key}"); ok = False
+              for rel in m["ontology"]["rules"]:
+                  if not (entry / rel).is_file():
+                      print(f"{manifest}: rules file missing: {rel}"); ok = False
+              for section, key in (("extraction", "schema"), ("extraction", "prompt")):
+                  rel = m.get(section, {}).get(key)
+                  if rel and not (entry / rel).is_file():
+                      print(f"{manifest}: {section}.{key} missing: {rel}"); ok = False
+              demo = m.get("demo", {}).get("script")
+              if demo:
+                  json.loads((entry / demo).read_text())
+              schema = m.get("extraction", {}).get("schema")
+              if schema:
+                  json.loads((entry / schema).read_text())
+          sys.exit(0 if ok else 1)
+          EOF
+
+  # TODO(engine-fixture): run each entry's fixtures/golden.iql against a live
+  # engine container (matrix over the entry's declared engine range) and diff
+  # against fixtures/golden.iql.out. Blocked on a published engine image.

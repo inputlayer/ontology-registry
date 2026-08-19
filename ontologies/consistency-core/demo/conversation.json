@@ -1,0 +1,163 @@
+{
+  "ontology": "consistency-core",
+  "format": 1,
+  "title": "One corrupted conversation, ten rule families",
+  "description": "Scripted demo for `il demo consistency-core`: an 11-turn travel-planning conversation seeded with ten distinct corruption families. Each turn carries the message text and its pre-extracted facts (verbatim IQL, transcribed from fixtures/golden.iql), so the demo runs deterministically with no extraction model and no API key. Expected findings per the engine-verified snapshot of 2026-07-26.",
+  "current_date": "2026-07-26",
+  "turns": [
+    {
+      "msg": 0,
+      "role": "system",
+      "content": "You are Aria, a formal assistant. Never mention pricing. Always include the final price table. Cover the itinerary. The budget is capped at $2,000.",
+      "statements": [
+        "+constraint[(\"k_m0_1\", \"persona\", \"assistant_identity\", \"aria\"), (\"k_m0_2\", \"persona\", \"tone\", \"formal\"), (\"k_m0_3\", \"forbid\", \"pricing\", \"\"), (\"k_m0_4\", \"require\", \"pricing\", \"\"), (\"k_m0_5\", \"require\", \"itinerary\", \"\")]",
+        "+constraint_num[(\"k_m0_6\", \"max_value\", \"total_price\", 2000)]",
+        "+constraint_source[(\"k_m0_1\", 0, \"You are Aria\"), (\"k_m0_2\", 0, \"a formal assistant\"), (\"k_m0_3\", 0, \"Never mention pricing\"), (\"k_m0_4\", 0, \"Always include the final price table\"), (\"k_m0_5\", 0, \"Cover the itinerary\"), (\"k_m0_6\", 0, \"budget is capped at $2,000\")]"
+      ],
+      "note": "The system prompt itself is corrupted: it both forbids and requires pricing (instruction_clash fires immediately)."
+    },
+    {
+      "msg": 1,
+      "role": "user",
+      "content": "We fly out of Geneva on August 14th. My brother Robert too.",
+      "statements": [
+        "+claim[(\"c_m1_1\", \"trip\", \"departure_city\", \"geneva\"), (\"c_m1_2\", \"trip\", \"departure_date\", \"2026-08-14\"), (\"c_m1_3\", \"robert\", \"is_a\", \"person\")]",
+        "+claim_modality[(\"c_m1_1\", \"asserted\"), (\"c_m1_2\", \"asserted\"), (\"c_m1_3\", \"asserted\")]",
+        "+claim_source[(\"c_m1_1\", 1, \"fly out of Geneva\"), (\"c_m1_2\", 1, \"on August 14th\"), (\"c_m1_3\", 1, \"My brother Robert\")]",
+        "+claim_num[(\"c_m1_2\", \"trip\", \"departure_date\", 20260814)]",
+        "+claim_origin[(\"c_m1_1\", \"prompt\"), (\"c_m1_2\", \"prompt\"), (\"c_m1_3\", \"prompt\")]"
+      ]
+    },
+    {
+      "msg": 2,
+      "role": "assistant",
+      "content": "It might be Lyon we depart from, let me confirm.",
+      "statements": [
+        "+claim[(\"c_m2_1\", \"trip\", \"departure_city\", \"lyon\")]",
+        "+claim_modality[(\"c_m2_1\", \"hedged\")]",
+        "+claim_source[(\"c_m2_1\", 2, \"might be Lyon we depart from\")]",
+        "+claim_origin[(\"c_m2_1\", \"prompt\")]"
+      ],
+      "note": "Hedged: the modality gate keeps this from ever firing a hard conflict — only a soft tension against the asserted Geneva claim."
+    },
+    {
+      "msg": 3,
+      "role": "user",
+      "content": "Since we leave on the 12th, get Bob an aisle seat. The keynote is before the workshop, the workshop before the demo.",
+      "statements": [
+        "+claim[(\"c_m3_1\", \"trip\", \"departure_date\", \"2026-08-12\"), (\"c_m3_2\", \"robert\", \"seat_preference\", \"aisle\")]",
+        "+claim_modality[(\"c_m3_1\", \"asserted\"), (\"c_m3_2\", \"question\")]",
+        "+claim_source[(\"c_m3_1\", 3, \"we leave on the 12th\"), (\"c_m3_2\", 3, \"get Bob an aisle seat\")]",
+        "+claim_num[(\"c_m3_1\", \"trip\", \"departure_date\", 20260812)]",
+        "+claim_origin[(\"c_m3_1\", \"prompt\"), (\"c_m3_2\", \"prompt\")]",
+        "+before_claim[(\"b_m3_1\", \"keynote\", \"workshop\"), (\"b_m3_2\", \"workshop\", \"demo\")]",
+        "+claim_source[(\"b_m3_1\", 3, \"keynote is before the workshop\"), (\"b_m3_2\", 3, \"the workshop before the demo\")]"
+      ],
+      "note": "The presupposition attack: 'Since we leave on the 12th' contradicts msg 1's August 14 — the functional conflict fires here."
+    },
+    {
+      "msg": 4,
+      "role": "user",
+      "content": "One change: the demo now runs before the keynote.",
+      "statements": [
+        "+before_claim[(\"b_m4_1\", \"demo\", \"keynote\")]",
+        "+claim_source[(\"b_m4_1\", 4, \"the demo now runs before the keynote\")]"
+      ],
+      "note": "Closes the timeline loop keynote < workshop < demo < keynote — three cycle findings."
+    },
+    {
+      "msg": 5,
+      "role": "user",
+      "content": "That's a different Anna, by the way.",
+      "statements": [
+        "+claim[(\"c_m5_1\", \"anna_1\", \"distinct_from\", \"anna_2\")]",
+        "+claim_modality[(\"c_m5_1\", \"asserted\")]",
+        "+claim_source[(\"c_m5_1\", 5, \"a different Anna\")]",
+        "+claim_origin[(\"c_m5_1\", \"prompt\")]",
+        "+same_as[(\"anna_1\", \"anna_2\")]"
+      ],
+      "note": "The canonicalizer had already merged the two Annas; asserting distinctness over a merge fires identity + irreflexive."
+    },
+    {
+      "msg": 6,
+      "role": "user",
+      "content": "We're back on August 10th.",
+      "statements": [
+        "+claim[(\"c_m6_1\", \"trip\", \"return_date\", \"2026-08-10\")]",
+        "+claim_modality[(\"c_m6_1\", \"asserted\")]",
+        "+claim_source[(\"c_m6_1\", 6, \"back on August 10th\")]",
+        "+claim_num[(\"c_m6_1\", \"trip\", \"return_date\", 20260810)]",
+        "+claim_origin[(\"c_m6_1\", \"prompt\")]"
+      ],
+      "note": "Return before either claimed departure — interval_order fires against both departure dates via the integer mirrors."
+    },
+    {
+      "msg": 7,
+      "role": "user",
+      "content": "Grandpa is 150 years old.",
+      "statements": [
+        "+claim[(\"c_m7_1\", \"grandpa\", \"age\", \"150\")]",
+        "+claim_num[(\"c_m7_1\", \"grandpa\", \"age\", 150)]",
+        "+claim_modality[(\"c_m7_1\", \"asserted\")]",
+        "+claim_source[(\"c_m7_1\", 7, \"Grandpa is 150 years old\")]",
+        "+claim_origin[(\"c_m7_1\", \"prompt\")]"
+      ],
+      "note": "Range violation: age 150 exceeds the seeded max of 130."
+    },
+    {
+      "msg": 8,
+      "role": "user",
+      "content": "The team is 2 people: Ada, Bo, and Cy.",
+      "statements": [
+        "+claim[(\"c_m8_1\", \"team\", \"member_count\", \"2\"), (\"c_m8_2\", \"team\", \"has_member\", \"ada\"), (\"c_m8_3\", \"team\", \"has_member\", \"bo\"), (\"c_m8_4\", \"team\", \"has_member\", \"cy\")]",
+        "+claim_num[(\"c_m8_1\", \"team\", \"member_count\", 2)]",
+        "+claim_modality[(\"c_m8_1\", \"asserted\"), (\"c_m8_2\", \"asserted\"), (\"c_m8_3\", \"asserted\"), (\"c_m8_4\", \"asserted\")]",
+        "+claim_source[(\"c_m8_1\", 8, \"The team is 2 people\"), (\"c_m8_2\", 8, \"Ada\"), (\"c_m8_3\", 8, \"Bo\"), (\"c_m8_4\", 8, \"Cy\")]",
+        "+claim_origin[(\"c_m8_1\", \"prompt\"), (\"c_m8_2\", \"prompt\"), (\"c_m8_3\", \"prompt\"), (\"c_m8_4\", \"prompt\")]"
+      ],
+      "note": "Cardinality: three named members against a claimed count of two (count_distinct aggregation)."
+    },
+    {
+      "msg": 9,
+      "role": "user",
+      "content": "Ada is Bea's parent. Bea is Ada's parent.",
+      "statements": [
+        "+claim[(\"c_m9_1\", \"ada\", \"parent_of\", \"bea\"), (\"c_m9_2\", \"bea\", \"parent_of\", \"ada\")]",
+        "+claim_modality[(\"c_m9_1\", \"asserted\"), (\"c_m9_2\", \"asserted\")]",
+        "+claim_source[(\"c_m9_1\", 9, \"Ada is Bea's parent\"), (\"c_m9_2\", 9, \"Bea is Ada's parent\")]",
+        "+claim_origin[(\"c_m9_1\", \"prompt\"), (\"c_m9_2\", \"prompt\")]"
+      ],
+      "note": "Mutual parent_of: asymmetry violation, and also a 2-cycle in an acyclic attribute."
+    },
+    {
+      "msg": 10,
+      "role": "assistant",
+      "content": "I'm Max, your assistant. The total comes to $2,600 for the trip.",
+      "origin": "output",
+      "statements": [
+        "+claim[(\"c_o1\", \"assistant_reply\", \"mentions_topic\", \"pricing\"), (\"c_o2\", \"assistant\", \"assistant_identity\", \"max\"), (\"c_o3\", \"trip\", \"total_price\", \"2600 USD\")]",
+        "+claim_num[(\"c_o3\", \"trip\", \"total_price\", 2600)]",
+        "+claim_modality[(\"c_o1\", \"asserted\"), (\"c_o2\", \"asserted\"), (\"c_o3\", \"asserted\")]",
+        "+claim_source[(\"c_o1\", 10, \"The total comes to $2,600\"), (\"c_o2\", 10, \"I'm Max, your assistant\"), (\"c_o3\", 10, \"total comes to $2,600 for the trip\")]",
+        "+claim_origin[(\"c_o1\", \"output\"), (\"c_o2\", \"output\"), (\"c_o3\", \"output\")]"
+      ],
+      "note": "Model output verified against the system constraints: forbidden topic (pricing), persona break (Max vs Aria), limit exceeded ($2,600 > $2,000 cap), and the itinerary requirement is still unmet."
+    }
+  ],
+  "retraction_beat": {
+    "content": "Actually, scrap that change — keep the demo after the workshop as originally planned.",
+    "statements": ["-before_claim(\"b_m4_1\", \"demo\", \"keynote\")"],
+    "expect": "The three before-claim cycle findings (b_m3_1, b_m3_2, b_m4_1) vanish; every other finding survives, including the two parent_of hierarchy-cycle rows (c_m9_1, c_m9_2)."
+  },
+  "expect": {
+    "conflicts": 16,
+    "violations": 4,
+    "tensions": 1,
+    "conflict_kinds": ["instruction_clash", "functional", "cycle", "identity", "irreflexive", "interval_order", "range", "cardinality", "asymmetry"],
+    "violation_kinds": ["forbidden_topic", "persona_break", "limit_exceeded", "required_missing"],
+    "tension_kinds": ["hedge_vs_assert"],
+    "must_absent": [["violation", "k_m0_4"]],
+    "verified_on": "2026-07-26",
+    "reference": "fixtures/golden.iql.out"
+  }
+}
