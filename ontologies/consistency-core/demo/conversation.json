@@ -38,7 +38,7 @@
         "+claim_source[(\"c_m2_1\", 2, \"might be Lyon we depart from\")]",
         "+claim_origin[(\"c_m2_1\", \"prompt\")]"
       ],
-      "note": "Hedged: the modality gate keeps this from ever firing a hard conflict — only a soft tension against the asserted Geneva claim."
+      "note": "Hedged: the modality gate keeps this from ever firing a hard conflict - only a soft tension against the asserted Geneva claim."
     },
     {
       "msg": 3,
@@ -53,7 +53,7 @@
         "+before_claim[(\"b_m3_1\", \"keynote\", \"workshop\"), (\"b_m3_2\", \"workshop\", \"demo\")]",
         "+claim_source[(\"b_m3_1\", 3, \"keynote is before the workshop\"), (\"b_m3_2\", 3, \"the workshop before the demo\")]"
       ],
-      "note": "The presupposition attack: 'Since we leave on the 12th' contradicts msg 1's August 14 — the functional conflict fires here."
+      "note": "The presupposition attack: 'Since we leave on the 12th' contradicts msg 1's August 14 - the functional conflict fires here."
     },
     {
       "msg": 4,
@@ -63,7 +63,7 @@
         "+before_claim[(\"b_m4_1\", \"demo\", \"keynote\")]",
         "+claim_source[(\"b_m4_1\", 4, \"the demo now runs before the keynote\")]"
       ],
-      "note": "Closes the timeline loop keynote < workshop < demo < keynote — three cycle findings."
+      "note": "Closes the timeline loop keynote < workshop < demo < keynote - three cycle findings."
     },
     {
       "msg": 5,
@@ -89,7 +89,7 @@
         "+claim_num[(\"c_m6_1\", \"trip\", \"return_date\", 20260810)]",
         "+claim_origin[(\"c_m6_1\", \"prompt\")]"
       ],
-      "note": "Return before either claimed departure — interval_order fires against both departure dates via the integer mirrors."
+      "note": "Return before either claimed departure - interval_order fires against both departure dates via the integer mirrors."
     },
     {
       "msg": 7,
@@ -145,7 +145,7 @@
     }
   ],
   "retraction_beat": {
-    "content": "Actually, scrap that change — keep the demo after the workshop as originally planned.",
+    "content": "Actually, scrap that change - keep the demo after the workshop as originally planned.",
     "statements": ["-before_claim(\"b_m4_1\", \"demo\", \"keynote\")"],
     "expect": "The three before-claim cycle findings (b_m3_1, b_m3_2, b_m4_1) vanish; every other finding survives, including the two parent_of hierarchy-cycle rows (c_m9_1, c_m9_2)."
   },

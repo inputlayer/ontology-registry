@@ -1,15 +1,15 @@
-# consistency-core — Verified Completions
+# consistency-core - Verified Completions
 #
-# Layers 1–2 of this entry are files (rules, extraction contract).
-# This manifest is layers 3–4 as data: how extraction output maps to IQL
+# Layers 1-2 of this entry are files (rules, extraction contract).
+# This manifest is layers 3-4 as data: how extraction output maps to IQL
 # facts, what the validator enforces, and what the demo/report surface
 # watches. Consumed by the `il` CLI and, later, the gateway.
 
 [ontology]
 name = "consistency-core"
-version = "1.0.0"
+version = "1.0.1"
 title = "Verified Completions"
-description = "Logical-consistency verification for AI conversations: contradictions, timeline cycles, identity mix-ups, and policy violations — every finding backed by quoted spans and a proof tree."
+description = "Logical-consistency verification for AI conversations: contradictions, timeline cycles, identity mix-ups, and policy violations - every finding backed by quoted spans and a proof tree."
 engine = ">=0.1.0"
 rules = ["rules/consistency.iql"]
 
@@ -34,7 +34,7 @@ protected_seeds = [
   "attr_max", "attr_min", "attr_domain",
 ]
 
-# ── chat→KG mapping ────────────────────────────────────────────────────
+# -------------------- chat->KG mapping --------------------
 # {field} substitutes extraction-output fields; string substitutions are
 # escaped automatically. `when` rows fire only if the named built-in
 # transform yields a value (bound to {num} here).
@@ -72,18 +72,18 @@ insert = [
 # Seed-list extensions: subject to protected_seeds above.
 insert_by_key = { functional = '+functional[("{item}",)]', acyclic = '+acyclic[("{item}",)]', asymmetric = '+asymmetric[("{item}",)]', irreflexive = '+irreflexive[("{item}",)]', pair_order = '+pair_order[("{start_attr}", "{end_attr}")]' }
 
-# ── report surface: what the demo TUI and `il verify` watch ────────────
+# -------------------- report surface: what the demo TUI and `il verify` watch --------------------
 
 [[report.watch]]
 view = "finding_src(K, Sev, C1, M1, S1, C2, M2, S2)"
-title = "{K} · {Sev}"
+title = "{K} - {Sev}"
 spans = [["M1", "S1"], ["M2", "S2"]]
 proof = 'conflict("{K}", "{C1}", "{C2}")'
 symmetric_dedup = true
 
 [[report.watch]]
 view = "violation_src(K, C, M, S, Kc)"
-title = "violation · {K}"
+title = "violation - {K}"
 spans = [["M", "S"]]
 proof = 'violation("{K}", "{C}", "{Kc}")'
 
