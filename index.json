@@ -4,6 +4,16 @@
   "entries": {
     "consistency-core": [
       {
+        "version": "1.0.2",
+        "title": "Verified Completions",
+        "engine": ">=0.1.0",
+        "urls": [
+          "https://github.com/inputlayer/ontology-registry/releases/download/consistency-core-v1.0.2/consistency-core-1.0.2.tar.gz"
+        ],
+        "digest": "sha256:947df8d140d3650abfdece63b48920aeb9f054a98c5a2114ba98100f93e7c7f1",
+        "created": "2026-08-20"
+      },
+      {
         "version": "1.0.1",
         "title": "Verified Completions",
         "engine": ">=0.1.0",
