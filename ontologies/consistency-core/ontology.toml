@@ -7,7 +7,7 @@
 
 [ontology]
 name = "consistency-core"
-version = "1.0.1"
+version = "1.0.2"
 title = "Verified Completions"
 description = "Logical-consistency verification for AI conversations: contradictions, timeline cycles, identity mix-ups, and policy violations - every finding backed by quoted spans and a proof tree."
 engine = ">=0.1.0"
@@ -82,7 +82,7 @@ proof = 'conflict("{K}", "{C1}", "{C2}")'
 symmetric_dedup = true
 
 [[report.watch]]
-view = "violation_src(K, C, M, S, Kc)"
+view = "violation_src(K, C, M, S, Kc, Mk, Sk)"
 title = "violation - {K}"
 spans = [["M", "S"]]
 proof = 'violation("{K}", "{C}", "{Kc}")'
