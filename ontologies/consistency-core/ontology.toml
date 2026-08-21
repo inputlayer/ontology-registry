@@ -72,9 +72,13 @@ insert = [
   '+constraint_source[("{id}", {msg}, "{surface}")]',
 ]
 
-[[map.ontology]]
-# Seed-list extensions: subject to protected_seeds above.
-insert_by_key = { functional = '+functional[("{item}",)]', acyclic = '+acyclic[("{item}",)]', asymmetric = '+asymmetric[("{item}",)]', irreflexive = '+irreflexive[("{item}",)]', pair_order = '+pair_order[("{start_attr}", "{end_attr}")]' }
+# NOTE: there is deliberately no [[map.ontology]] mapping. The extraction
+# schema still has an `ontology` block (the model may report what it
+# believes is functional/acyclic/...), but those are ONTOLOGY-level
+# statements, and the ground rule is that the model authors data, never
+# rules. The pack's own seeds (rules/consistency.iql) are authoritative;
+# model-coined seeds would otherwise be global, permanent, and shared by
+# every conversation in the knowledge graph.
 
 # -------------------- report surface: what the demo TUI and `il verify` watch --------------------
 

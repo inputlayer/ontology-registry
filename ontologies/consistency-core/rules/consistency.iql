@@ -155,17 +155,24 @@
 
 // -- 6. Output-vs-constraint violations (M3; origin-gated) --------------------
 +out(C, E, A, V) <- active(C, E, A, V), claim_origin(C, "output")
-+out_topic(T) <- out(C, E, "mentions_topic", T)
+// out_topic removed with v_required_missing (see below).
 
 +v_forbidden_topic(C, K) <- out(C, E, "mentions_topic", T), constraint(K, "forbid", T, V1)
-+v_persona_break(C, K) <- out(C, "assistant", A, V1), constraint(K, "persona", A, V2), V1 != V2
+// The persona subject is matched by ATTRIBUTE, not by a literal entity id:
+// entity ids are namespaced per conversation by the gateway, so a literal
+// "assistant" could never match and this check was silently dead.
++v_persona_break(C, K) <- out(C, E, A, V1), constraint(K, "persona", A, V2), V1 != V2
 +v_limit_exceeded(C, K) <- claim_num(C, E, A, N), claim_origin(C, "output"), claim_modality(C, "asserted"), constraint_num(K, "max_value", A, M), N > M
 +v_floor_missed(C, K) <- claim_num(C, E, A, N), claim_origin(C, "output"), claim_modality(C, "asserted"), constraint_num(K, "min_value", A, M), N < M
 
 // D4: required topic MISSING from the output - stratified negation over a
 // non-recursive relation; the claim_origin atom set-dedups to gate the rule
 // so it only fires once an output has actually been extracted
-+v_required_missing(K) <- constraint(K, "require", T, V1), claim_origin(Cz, "output"), !out_topic(T)
+// REMOVED in 1.0.5: required-missing needed an unbound existential over
+// any output claim plus a knowledge-graph-global negation, so in a shared
+// knowledge graph one conversation suppressed or fabricated another
+// conversation's finding. It returns when the check can be bound to the
+// conversation (M3, inputlayer#86).
 
 // -- 7. Soft tensions (advisory severity, never hard conflicts) ---------------
 +tension_hedge_vs_assert(C1, C2) <- active(C1, E1, A, V1), hedged(C2, E2, A, V2), coentity(E1, E2), functional(A), V1 != V2
@@ -196,7 +203,7 @@
 +violation("persona_break", C, K) <- v_persona_break(C, K)
 +violation("limit_exceeded", C, K) <- v_limit_exceeded(C, K)
 +violation("floor_missed", C, K) <- v_floor_missed(C, K)
-+violation("required_missing", K, K) <- v_required_missing(K)
+// violation("required_missing", ...) removed with v_required_missing.
 
 +tension("hedge_vs_assert", C1, C2) <- tension_hedge_vs_assert(C1, C2)
 
