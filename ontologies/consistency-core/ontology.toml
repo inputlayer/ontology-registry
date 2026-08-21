@@ -7,13 +7,17 @@
 
 [ontology]
 name = "consistency-core"
-version = "1.0.2"
+version = "1.0.3"
 title = "Verified Completions"
 description = "Logical-consistency verification for AI conversations: contradictions, timeline cycles, identity mix-ups, and policy violations - every finding backed by quoted spans and a proof tree."
 engine = ">=0.1.0"
 rules = ["rules/consistency.iql"]
 
 [extraction]
+# Fields whose values are conversation-scoped identifiers: the gateway
+# prefixes them with the conversation id so conversations are isolated
+# namespaces inside a shared knowledge graph.
+identifier_fields = { claims = ["id", "entity"], before_claims = ["id", "event_a", "event_b"], constraints = ["id"] }
 schema = "extraction/schema.json"
 prompt = "extraction/prompt.md"
 model = "claude-haiku-4-5"
@@ -76,6 +80,7 @@ insert_by_key = { functional = '+functional[("{item}",)]', acyclic = '+acyclic[(
 
 [[report.watch]]
 view = "finding_src(K, Sev, C1, M1, S1, C2, M2, S2)"
+blocking = true
 title = "{K} - {Sev}"
 spans = [["M1", "S1"], ["M2", "S2"]]
 proof = 'conflict("{K}", "{C1}", "{C2}")'
@@ -83,6 +88,7 @@ symmetric_dedup = true
 
 [[report.watch]]
 view = "violation_src(K, C, M, S, Kc, Mk, Sk)"
+blocking = true
 title = "violation - {K}"
 spans = [["M", "S"]]
 proof = 'violation("{K}", "{C}", "{Kc}")'
