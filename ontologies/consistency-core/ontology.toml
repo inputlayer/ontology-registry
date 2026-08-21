@@ -7,7 +7,7 @@
 
 [ontology]
 name = "consistency-core"
-version = "1.0.4"
+version = "1.0.5"
 title = "Verified Completions"
 description = "Logical-consistency verification for AI conversations: contradictions, timeline cycles, identity mix-ups, and policy violations - every finding backed by quoted spans and a proof tree."
 engine = ">=0.1.0"
