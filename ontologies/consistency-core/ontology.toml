@@ -7,7 +7,7 @@
 
 [ontology]
 name = "consistency-core"
-version = "1.0.5"
+version = "1.0.6"
 title = "Verified Completions"
 description = "Logical-consistency verification for AI conversations: contradictions, timeline cycles, identity mix-ups, and policy violations - every finding backed by quoted spans and a proof tree."
 engine = ">=0.1.0"
@@ -18,6 +18,13 @@ rules = ["rules/consistency.iql"]
 # prefixes them with the conversation id so conversations are isolated
 # namespaces inside a shared knowledge graph.
 identifier_fields = { claims = ["id", "entity"], before_claims = ["id", "event_a", "event_b"], constraints = ["id"] }
+# Entity-valued attributes ("reports_to" -> another entity, "part_of" -> a
+# parent) carry an entity id in `value`. It is namespaced only when it
+# matches an identifier from the same extraction, so entity references keep
+# joining while literals ("2026-04-01", "person") stay literal. Without
+# this, every rule that walks entity to entity - cycles, transitive
+# closures, hierarchies - silently stops finding anything.
+reference_fields = { claims = ["value"] }
 schema = "extraction/schema.json"
 prompt = "extraction/prompt.md"
 model = "claude-haiku-4-5"
