@@ -7,7 +7,7 @@
 
 [ontology]
 name = "consistency-core"
-version = "1.0.3"
+version = "1.0.4"
 title = "Verified Completions"
 description = "Logical-consistency verification for AI conversations: contradictions, timeline cycles, identity mix-ups, and policy violations - every finding backed by quoted spans and a proof tree."
 engine = ">=0.1.0"
@@ -81,6 +81,8 @@ insert_by_key = { functional = '+functional[("{item}",)]', acyclic = '+acyclic[(
 [[report.watch]]
 view = "finding_src(K, Sev, C1, M1, S1, C2, M2, S2)"
 blocking = true
+# Columns holding conversation-scoped identifiers (see [extraction].identifier_fields).
+scope = ["C1", "C2"]
 title = "{K} - {Sev}"
 spans = [["M1", "S1"], ["M2", "S2"]]
 proof = 'conflict("{K}", "{C1}", "{C2}")'
@@ -89,6 +91,7 @@ symmetric_dedup = true
 [[report.watch]]
 view = "violation_src(K, C, M, S, Kc, Mk, Sk)"
 blocking = true
+scope = ["C", "Kc"]
 title = "violation - {K}"
 spans = [["M", "S"]]
 proof = 'violation("{K}", "{C}", "{Kc}")'
