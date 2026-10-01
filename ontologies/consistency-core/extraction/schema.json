@@ -6,7 +6,8 @@
     "claims",
     "before_claims",
     "constraints",
-    "ontology"
+    "ontology",
+    "retractions"
   ],
   "properties": {
     "claims": {
@@ -204,6 +205,42 @@
           "type": "array",
           "items": {
             "type": "string"
+          }
+        }
+      }
+    },
+    "retractions": {
+      "type": "array",
+      "description": "prior facts this message explicitly revises (prompt section 4); empty unless the message carries a revision marker",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "target",
+          "kind",
+          "msg",
+          "surface"
+        ],
+        "properties": {
+          "target": {
+            "type": "string",
+            "description": "id of the prior claim, constraint, or before_claim from CLAIMS_SO_FAR"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "claim",
+              "constraint",
+              "before"
+            ]
+          },
+          "msg": {
+            "type": "integer",
+            "description": "index of the message carrying the revision marker"
+          },
+          "surface": {
+            "type": "string",
+            "description": "verbatim contiguous substring of that message containing the revision marker"
           }
         }
       }
