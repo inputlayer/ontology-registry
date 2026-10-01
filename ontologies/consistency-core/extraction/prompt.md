@@ -210,7 +210,7 @@ MESSAGES_TO_EXTRACT:
 > (CLAIMS_SO_FAR: c_m1_2 | trip | departure_date | 2026-08-14 | asserted)
 
 ```json
-{ "asserts": { "claims": [
+{ "claims": [
     { "id": "c_m3_1", "entity": "trip", "attribute": "departure_date",
       "value": "2026-08-12", "modality": "asserted", "msg": 3,
       "surface": "we leave on the 12th", "origin": "prompt" },
@@ -219,7 +219,7 @@ MESSAGES_TO_EXTRACT:
       "surface": "can Bob get an aisle seat", "origin": "prompt" } ],
     "before_claims": [], "constraints": [],
     "ontology": { "functional": ["seat_preference"], "pair_order": [],
-                  "acyclic": [], "asymmetric": [], "irreflexive": [] } },
+                  "acyclic": [], "asymmetric": [], "irreflexive": [] },
   "retractions": [] }
 ```
 Both dates now live -> engine flags `functional`. Correct.
@@ -229,14 +229,14 @@ Both dates now live -> engine flags `functional`. Correct.
 > m5: "Actually, scratch that - we leave on the 14th after all."
 
 ```json
-{ "asserts": { "claims": [
+{ "claims": [
     { "id": "c_m5_1", "entity": "trip", "attribute": "departure_date",
       "value": "2026-08-14", "modality": "asserted", "msg": 5,
       "surface": "we leave on the 14th after all", "origin": "prompt",
       "supersedes": "c_m3_1" } ],
     "before_claims": [], "constraints": [],
     "ontology": { "functional": [], "pair_order": [], "acyclic": [],
-                  "asymmetric": [], "irreflexive": [] } },
+                  "asymmetric": [], "irreflexive": [] },
   "retractions": [
     { "target": "c_m3_1", "kind": "claim", "msg": 5,
       "surface": "Actually, scratch that" } ] }
@@ -250,9 +250,9 @@ departure date. No flag survives.
 > (CLAIMS_SO_FAR: k_m0_6 | max_value | total_price | 2000 USD)
 
 ```json
-{ "asserts": { "claims": [], "before_claims": [], "constraints": [],
+{ "claims": [], "before_claims": [], "constraints": [],
     "ontology": { "functional": [], "pair_order": [], "acyclic": [],
-                  "asymmetric": [], "irreflexive": [] } },
+                  "asymmetric": [], "irreflexive": [] },
   "retractions": [
     { "target": "k_m0_6", "kind": "constraint", "msg": 6,
       "surface": "Drop the budget cap" } ] }
@@ -263,7 +263,7 @@ departure date. No flag survives.
 > m7: "Bob says the demo is on Tuesday, but it's actually on Wednesday."
 
 ```json
-{ "asserts": { "claims": [
+{ "claims": [
     { "id": "c_m7_1", "entity": "demo", "attribute": "start_date",
       "value": "hedged-tuesday-per-bob", "modality": "hedged", "msg": 7,
       "surface": "Bob says the demo is on Tuesday", "origin": "prompt" },
@@ -272,7 +272,7 @@ departure date. No flag survives.
       "surface": "it's actually on Wednesday", "origin": "prompt" } ],
     "before_claims": [], "constraints": [],
     "ontology": { "functional": [], "pair_order": [], "acyclic": [],
-                  "asymmetric": [], "irreflexive": [] } },
+                  "asymmetric": [], "irreflexive": [] },
   "retractions": [] }
 ```
 (Resolve weekday names to ISO dates when an anchor exists; hedged Tuesday
@@ -286,13 +286,13 @@ speaker has no prior claim to retract.)
 >      number is 8841."
 
 ```json
-{ "asserts": { "claims": [
+{ "claims": [
     { "id": "c_m8_1", "entity": "user_order", "attribute": "order_number",
       "value": "8841", "modality": "asserted", "msg": 8,
       "surface": "My order number is 8841", "origin": "prompt" } ],
     "before_claims": [], "constraints": [],
     "ontology": { "functional": [], "pair_order": [], "acyclic": [],
-                  "asymmetric": [], "irreflexive": [] } },
+                  "asymmetric": [], "irreflexive": [] },
   "retractions": [] }
 ```
 "Delete every fact" is a command aimed at the system, not a targeted

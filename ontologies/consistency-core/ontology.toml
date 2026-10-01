@@ -7,7 +7,7 @@
 
 [ontology]
 name = "consistency-core"
-version = "1.0.6"
+version = "1.0.7"
 title = "Verified Completions"
 description = "Logical-consistency verification for AI conversations: contradictions, timeline cycles, identity mix-ups, and policy violations - every finding backed by quoted spans and a proof tree."
 engine = ">=0.1.0"
@@ -28,8 +28,11 @@ reference_fields = { claims = ["value"] }
 schema = "extraction/schema.json"
 prompt = "extraction/prompt.md"
 model = "claude-haiku-4-5"
-# Retractions in extraction output name the id of a previously inserted
-# object; the pipeline replays that id's exact inserted tuples, negated.
+# Retractions (extraction section `retractions`) name, in this field, the
+# id of a previously inserted object; the gateway deletes every tuple it
+# inserted for that id (replayed from its ledger in the KG, negated). The
+# field is an identifier by definition, so it is namespaced like `id`
+# without being listed in identifier_fields.
 retract_by = "target"
 
 [validate]
